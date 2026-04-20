@@ -27,13 +27,18 @@ npm run preview
 
 ## Architecture
 
-**Single-component app**: All logic lives in `src/App.jsx` - there are no separate components, utilities, or state management libraries. This monolithic structure is intentional for the starter.
+**Component structure**: `src/App.jsx` is the root and owns the `transactions` array, `categories` list, and an `addTransaction` callback. UI is split into three child components under `src/components/`:
 
-**State management**: Uses basic React `useState` hooks. Transaction data is stored in component state (not persisted).
+- `Summary.jsx` — receives `transactions` and computes `totalIncome`, `totalExpenses`, and `balance` internally.
+- `TransactionForm.jsx` — owns its own form state (`description`, `amount`, `type`, `category`) and calls the `onAdd` prop when submitted. Coerces `amount` to `Number` before handing it to the parent.
+- `TransactionList.jsx` — owns its own filter state (`filterType`, `filterCategory`) and renders the filtered transactions table. Receives `transactions` and `categories` as props.
+
+**State management**: Basic React `useState` hooks. State is colocated with the component that uses it; only shared state (`transactions`) lives in `App`. No persistence — transactions reset on page reload.
+
+**Data shape**: `transactions` is an array of `{ id, description, amount (number), type, category, date }`. Amounts are stored as numbers, not strings.
 
 **Known issues by design**:
-- Line 27-31 in `App.jsx`: `totalIncome` and `totalExpenses` calculations sum `t.amount` without parsing to number (amounts are stored as strings)
-- Line 9 in `App.jsx`: Transaction #4 has `type: "expense"` but `category: "salary"` (likely should be income)
+- Line 10 in `App.jsx`: Transaction #4 has `type: "expense"` but `category: "salary"` (likely should be income)
 - No delete/edit functionality for transactions
 - No data persistence (transactions reset on page reload)
 
